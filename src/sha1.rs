@@ -1,3 +1,14 @@
+use std::iter::zip;
+
+mod method1;
+mod method2;
+
+/// SHA1 computation method as specified in RFC 3174
+enum Sha1Method {
+    First,
+    Second,
+}
+
 pub struct Sha1Digest {
     bytes: [u8; 20],
     hex_digest: String,
@@ -6,6 +17,7 @@ pub struct Sha1Digest {
 impl Sha1Digest {
     pub fn hash(msg_bytes: Vec<u8>) -> Self {
         let padded_bytes = pad_message(msg_bytes);
+        let blocks = split_msg_to_blocks(padded_bytes);
 
         todo!()
     }
@@ -21,6 +33,21 @@ fn pad_message(mut bytes: Vec<u8>) -> Vec<u8> {
     bytes.extend(length_bytes);
     assert_eq!(bytes.len() % 64, 0);
     bytes
+}
+
+fn split_msg_to_blocks(bytes: Vec<u8>) -> Vec<[u32; 16]> {
+    assert_eq!(bytes.len() % 64, 0);
+
+    let mut blocks = vec![];
+    for i in (0..bytes.len()).step_by(64) {
+        let mut block = [0u32; 16];
+        for (k, j) in zip(0usize..16, (i..i + 64).step_by(4)) {
+            let word = u32::from_be_bytes([bytes[j], bytes[j + 1], bytes[j + 2], bytes[j + 3]]);
+            block[k] = word;
+        }
+        blocks.push(block);
+    }
+    blocks
 }
 
 fn f(t: usize, b: u32, c: u32, d: u32) -> u32 {
@@ -41,5 +68,18 @@ fn k(t: usize) -> u32 {
         60..=79 => 0xca62c1d6,
         _ => unreachable!(),
     }
+}
+
+fn h_arr() -> [u32; 5] {
+    const H0: u32 = 0x67452301;
+    const H1: u32 = 0xefcdab89;
+    const H2: u32 = 0x98badcfe;
+    const H3: u32 = 0x10325476;
+    const H4: u32 = 0xc3d2e1f0;
+    [H0, H1, H2, H3, H4]
+}
+
+fn rotate_left(n: u32, s: u32) -> u32 {
+    (n << s) | (n >> (32 - s))
 }
 
