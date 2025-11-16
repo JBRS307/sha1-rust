@@ -43,12 +43,12 @@ fn process_block(
     let mut d = *h3;
     let mut e = *h4;
 
-    for t in 0..=79 {
+    for (t, word) in w.iter().enumerate() {
         let temp = u32::overflowing_add(rotate_left(a, 5), f(t, b, c, d))
             .0
             .overflowing_add(e)
             .0
-            .overflowing_add(w[t])
+            .overflowing_add(*word)
             .0
             .overflowing_add(k(t))
             .0;
