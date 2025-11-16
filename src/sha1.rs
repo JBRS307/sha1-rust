@@ -19,7 +19,18 @@ impl Sha1Digest {
         let padded_bytes = pad_message(msg_bytes);
         let blocks = split_msg_to_blocks(padded_bytes);
 
-        todo!()
+        let bytes = method1::process_msg(blocks);
+        let hex_digest = hex_digest(&bytes);
+
+        Self { bytes, hex_digest }
+    }
+
+    pub fn bytes(&self) -> &[u8; 20] {
+        &self.bytes
+    }
+
+    pub fn hex_digest(&self) -> &str {
+        &self.hex_digest
     }
 }
 
@@ -83,3 +94,10 @@ fn rotate_left(n: u32, s: u32) -> u32 {
     (n << s) | (n >> (32 - s))
 }
 
+fn hex_digest(bytes: &[u8; 20]) -> String {
+    let mut digest = String::with_capacity(40);
+    for byte in bytes {
+        digest.push_str(&format!("{byte:02x}"));
+    }
+    digest
+}
