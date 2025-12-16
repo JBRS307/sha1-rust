@@ -4,6 +4,7 @@ mod method1;
 mod method2;
 
 /// SHA1 computation method as specified in RFC 3174
+#[allow(dead_code)]
 enum Sha1Method {
     First,
     Second,
@@ -88,10 +89,6 @@ fn h_arr() -> [u32; 5] {
     const H3: u32 = 0x10325476;
     const H4: u32 = 0xc3d2e1f0;
     [H0, H1, H2, H3, H4]
-}
-
-fn rotate_left(n: u32, s: u32) -> u32 {
-    (n << s) | (n >> (32 - s))
 }
 
 fn hex_digest(bytes: &[u8; 20]) -> String {

@@ -1,4 +1,4 @@
-use crate::sha1::{f, h_arr, k, rotate_left};
+use crate::sha1::{f, h_arr, k};
 
 pub(super) fn process_msg(blocks: Vec<[u32; 16]>) -> [u8; 20] {
     let [mut h0, mut h1, mut h2, mut h3, mut h4] = h_arr();
@@ -34,7 +34,7 @@ fn process_block(
 
     for t in 16..=79usize {
         let n = w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16];
-        w[t] = rotate_left(n, 1);
+        w[t] = n.rotate_left(1);
     }
 
     let mut a = *h0;
@@ -44,7 +44,7 @@ fn process_block(
     let mut e = *h4;
 
     for (t, word) in w.iter().enumerate() {
-        let temp = u32::overflowing_add(rotate_left(a, 5), f(t, b, c, d))
+        let temp = u32::overflowing_add(a.rotate_left(5), f(t, b, c, d))
             .0
             .overflowing_add(e)
             .0
@@ -54,7 +54,7 @@ fn process_block(
             .0;
         e = d;
         d = c;
-        c = rotate_left(b, 30);
+        c = b.rotate_left(30);
         b = a;
         a = temp;
     }
