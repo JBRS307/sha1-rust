@@ -4,8 +4,8 @@ mod method1;
 mod method2;
 
 /// SHA1 computation method as specified in RFC 3174
-#[allow(dead_code)]
-enum Sha1Method {
+#[derive(Clone, Copy)]
+pub enum Sha1Method {
     First,
     Second,
 }
@@ -16,11 +16,14 @@ pub struct Sha1Digest {
 }
 
 impl Sha1Digest {
-    pub fn hash(msg_bytes: Vec<u8>) -> Self {
+    pub fn hash(msg_bytes: Vec<u8>, method: Sha1Method) -> Self {
         let padded_bytes = pad_message(msg_bytes);
         let blocks = split_msg_to_blocks(padded_bytes);
 
-        let bytes = method1::process_msg(blocks);
+        let bytes = match method {
+            Sha1Method::First => method1::process_msg(blocks),
+            Sha1Method::Second => method2::process_msg(blocks),
+        };
         let hex_digest = hex_digest(&bytes);
 
         Self { bytes, hex_digest }
